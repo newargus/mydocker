@@ -1,0 +1,29 @@
+services:
+    # Wireguard
+    wireguard:
+        image: linuxserver/wireguard:latest
+        container_name: wireguard
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - SERVERURL=${WIREGUARD_SERVERURL}
+            - SERVERPORT=51820
+            - PEERS=3
+            - PEERDNS=8.8.8.8
+            - INTERNAL_SUBNET=10.13.13.0
+            - ALLOWEDIPS=0.0.0.0/0
+        ports:
+            - 51820:51820/udp
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1            
+        volumes:
+            - $DOCKERDIR/volumes/wireguard/config:/config
+            - /lib/modules:/lib/modules    
+        restart: unless-stopped
+        profiles: ["services", "all"]
+        networks:
+            - reverse_proxy 
