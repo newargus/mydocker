@@ -16,7 +16,7 @@ services:
             - TZ=${TZ}
             - WEBPASSWORD=${PIHOLE_PASSWORD}
             - FTLCONF_LOCAL_IPV4=${HOST_LOCAL_IPV4}
-            - PIHOLE_DNS=${PIHOLE_DNSFORWARDER}
+            - PIHOLE_DNS_=${PIHOLE_DNSFORWARDER}
         volumes:
             - '$DOCKERDIR/volumes/pihole/etc-pihole/:/etc/pihole/'
             - '$DOCKERDIR/volumes/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
