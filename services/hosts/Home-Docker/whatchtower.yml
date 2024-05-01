@@ -21,4 +21,4 @@ services:
         restart: unless-stopped
         profiles: ["services", "all"]
         networks:
-            - backend   
+            - dns_net   

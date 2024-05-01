@@ -13,4 +13,4 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - $DOCKERDIR/volumes/portainer-ce/data:/data
         networks:
-            - backend
+            - reverse_proxy

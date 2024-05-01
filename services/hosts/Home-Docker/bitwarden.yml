@@ -26,4 +26,4 @@ services:
         volumes:
             - $DOCKERDIR/volumes/bitwarden:/data
         networks:
-            - backend 
+            - reverse_proxy 
