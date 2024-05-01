@@ -1,0 +1,16 @@
+services:
+    # Portainer Community Edition
+    portainer-ce:
+        container_name: portainer-ce
+        image: portainer/portainer-ce
+        restart: unless-stopped
+        profiles: ["core", "all"]
+        ports:
+            - 9000:9000
+            - 9443:9443
+            - 8000:8000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - $DOCKERDIR/volumes/portainer-ce/data:/data
+        networks:
+            - backend

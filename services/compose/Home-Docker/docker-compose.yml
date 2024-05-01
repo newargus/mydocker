@@ -1,0 +1,46 @@
+version: "3.9"
+
+########################### OCR'S ENVIRONMENT
+
+# Here are my 5 Docker Hosts:
+# - Home Server (Home-Docker) - Proxmox LXC with Ubuntu Server 22.04
+# - DNS / AdBlock Server (dns) - Raspberry Pi 4B with Raspberry Pi OS
+
+
+########################### NETWORKS
+# You may customize the network subnets (192.168.x.0/24) below as you please.
+networks:
+  default:
+    driver: bridge
+  reverse_proxy:
+    name: reverse_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+  dns_net:
+    name: dns_net
+    driver: bridge
+    ipam:
+        config:
+        - subnet: 172.23.0.0/16  
+
+########################### SECRETS
+
+########################### SERVICES
+include:
+
+  # CORE
+  - $HOME/mydocker/services/hosts/$HOSTNAME/cloufflare-ddns.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/unbound.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/pihole.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/portainer-ce.yml
+
+  # SERVICES
+  - $HOME/mydocker/services/hosts/$HOSTNAME/whatchtower.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/cloudflare-companion.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/wirguard.yml
+
+  # APPS
+  - $HOME/mydocker/services/hosts/$HOSTNAME/bitwarden.yml
+  - $HOME/mydocker/services/hosts/$HOSTNAME/wirguard.yml
