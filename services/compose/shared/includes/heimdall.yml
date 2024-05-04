@@ -1,0 +1,21 @@
+services:    
+    # heimdall
+    heimdall:
+        image: linuxserver/heimdall:latest
+        container_name: heimdall
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        # ports:
+        #    - 80:80
+        volumes:
+            - $DOCKERDIR/volumes/heimdall/appdata/config:/config
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.heimdall.rule: Host(`services.${PUBLICDOMAIN1}`)
+            traefik.http.services.heimdall.loadbalancer.server.port: 80
+            traefik.http.routers.heimdall.entrypoints: web,websecure
+            traefik.http.routers.heimdall.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

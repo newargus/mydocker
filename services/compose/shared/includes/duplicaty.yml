@@ -1,0 +1,31 @@
+services:    
+    # duplicati
+    duplicati:
+        image: linuxserver/duplicati:latest
+        container_name: duplicati
+        restart: unless-stopped
+        profiles: ["services", "all"]
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+        # ports:
+        #    - 5678:5678
+        volumes:
+            - $DOCKERDIR/volumes/duplicati/config:/config
+            - $DOCKERDIR/backup/duplicati:/host_backup
+            - $DOCKERDIR/volumes:/mydocker_volumes
+            - $DOCKERDIR/services:/mydocker_services
+
+        security_opt:
+            - no-new-privileges:true    
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.duplicati.rule: Host(`duplicati.${PUBLICDOMAIN1}`)
+            traefik.http.services.duplicati.loadbalancer.server.port: 5678
+            traefik.http.routers.duplicati.entrypoints: web,websecure
+            traefik.http.routers.duplicati.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

@@ -1,0 +1,21 @@
+services:    
+    # pingvin-share
+    pingvin-share:
+        image: stonith404/pingvin-share:latest
+        container_name: pingvin-share
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        # ports:
+        #    - 3000:3000
+        volumes:
+            - $DOCKERDIR/volumes/pingvin-share/data:/opt/app/backend/data
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.pingvin-share.rule: Host(`fileshare.${PUBLICDOMAIN1}`)
+            traefik.http.services.pingvin-share.loadbalancer.server.port: 3000
+            traefik.http.routers.pingvin-share.entrypoints: web,websecure
+            traefik.http.routers.pingvin-share.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

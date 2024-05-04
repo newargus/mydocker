@@ -1,0 +1,23 @@
+services:    
+    # uptime-kuma
+    uptime-kuma:
+        image: linuxserver/heimdall:latest
+        container_name: uptime-kuma
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        # ports:
+        #    - 3001:3001
+        volumes:
+            - $DOCKERDIR/volumes/uptime-kuma/data:/data
+        security_opt:
+            - no-new-privileges:true    
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.uptime-kuma.rule: Host(`uptime.${PUBLICDOMAIN1}`)
+            traefik.http.services.uptime-kuma.loadbalancer.server.port: 3001
+            traefik.http.routers.uptime-kuma.entrypoints: web,websecure
+            traefik.http.routers.uptime-kuma.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

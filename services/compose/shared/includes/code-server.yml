@@ -1,0 +1,27 @@
+services:    
+    # code-server
+    code-server:
+        image: linuxserver/code-server:latest
+        container_name: code-server
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+        # ports:
+        #    - 8443:8443
+        volumes:
+            - $DOCKERDIR/volumes/code-server/config:/config
+        security_opt:
+            - no-new-privileges:true    
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.codeserver.rule: Host(`code-server.${LOCALDOMAIN1}`)
+            traefik.http.services.codeserver.loadbalancer.server.port: 8443
+            traefik.http.routers.codeserver.entrypoints: web,websecure
+            traefik.http.routers.codeserver.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

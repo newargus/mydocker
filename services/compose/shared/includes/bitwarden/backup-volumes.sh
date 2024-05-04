@@ -72,18 +72,28 @@ Directory_name=data
 msg_info "Backup $Container_name Container Volumes"
 msg_info "Stopping Container"
 docker stop $Container_name > /dev/null
-until [ "$(docker ps -a -q  -f status=exited -f name=${Container_name})" ];
+
+
+Init_Check="yes"
+until [[ "$(docker ps -a -q  -f status=exited -f name=${Container_name})" ]] ;
 do
-  msg_info "Container $Container_name is still running......"
-  sleep 5s
+  if [[ "$Init_Check" == "yes" ]]; then
+    msg="Container $Container_name is still running."
+    echo -ne "${BFR} ${HOLD} ${BL}${msg}"
+    Init_Check="no"
+  else 
+    echo -ne "."
+  fi  
+  sleep 2s
 done
-msg_ok "Container $Container_name is stopped"
-sleep 5s
-msg_info "Starting Backup"
-if [ ! -d "$BACKUPDIR/$Container_name" ]; then
-    mkdir $BACKUPDIR/$Container_name > /dev/null
+msg_ok "$Container_name Container is stopped !"
+
+if [ -d "$BACKUPDIR/$Container_name" ] && [ -n "$(ls -A "$BACKUPDIR/$Container_name")" ]; then
+    ls -1dtp "$BACKUPDIR/$Container_name"/* | grep -v '/$' | tail -n +3 | xargs -I {} rm -- {} > /dev/null
+else
+     mkdir -p "$BACKUPDIR/$Container_name" > /dev/null
 fi
-ls -1dtp "$BACKUPDIR/$Container_name"/* | grep -v '/$' | tail -n +7 | xargs -I {} rm -- {}
+
 docker run --rm --volumes-from $Container_name -v $BACKUPDIR:/backup busybox tar cvfz /backup/$Container_name/$Container_name-$Directory_name-$(date +"%Y%m%d_%H-%M-%S").tar /$Directory_name > /dev/null
 msg_ok "Backup $Container_name is done"
 msg_info  "Starting Container"

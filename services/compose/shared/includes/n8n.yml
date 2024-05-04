@@ -1,0 +1,29 @@
+services:    
+    # n8n
+    n8n:
+        image: n8nio/n8n:latest
+        container_name: n8n
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        environment:
+            - TZ=${TZ}
+            - GENERIC_TIMEZONE=${TZ}
+            - WEBHOOK_URL=https://n8n.${PUBLICDOMAIN1}/
+            - EXECUTIONS_PROCESS=main
+        # ports:
+        #    - 5678:5678
+        volumes:
+            - $DOCKERDIR/volumes/n8n/.n8n:/home/node/.n8n
+            - $DOCKERDIR/volumes/n8n/files:/files
+        security_opt:
+            - no-new-privileges:true    
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.n8n.rule: Host(`n8n.${PUBLICDOMAIN1}`)
+            traefik.http.services.n8n.loadbalancer.server.port: 5678
+            traefik.http.routers.n8n.entrypoints: web,websecure
+            traefik.http.routers.n8n.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

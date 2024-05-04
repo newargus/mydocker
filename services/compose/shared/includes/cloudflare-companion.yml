@@ -7,13 +7,16 @@ services:
             - TIMEZONE=${TZ}
             - TRAEFIK_VERSION=2
             - CF_TOKEN=${CLOUDFLARE_TOKEN}
-            - TARGET_DOMAIN=${CLOUDFLARE_DOMAIN1}
-            - DOMAIN1=${CLOUDFLARE_DOMAIN1}
+            - TARGET_DOMAIN=${PUBLICDOMAIN1}
+            - DOMAIN1=${PUBLICDOMAIN1}
             - DOMAIN1_ZONE_ID=${CLOUDFLARE_DOMAIN1_ZONEID}
             - DOMAIN1_PROXIED=TRUE
+            - TRAEFIK_CONSTRAINT_LABEL=traefik.constraint
+            - TRAEFIK_CONSTRAINT=reverse_proxy
+            
         network_mode: 'host'    
         volumes:
             - $DOCKERDIR/volumes/cloudflare-companion/logs:/logs
-            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         restart: unless-stopped
         profiles: ["services", "all"]

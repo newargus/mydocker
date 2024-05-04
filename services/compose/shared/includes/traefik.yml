@@ -1,0 +1,45 @@
+services:    
+    # traefik
+    traefik:
+        image: traefik:latest
+        container_name: traefik
+        environment:
+            - TZ=${TZ}
+            - CF_DNS_API_TOKEN=${CLOUDFLARE_TOKEN}
+            - TRAEFIK_DASHBOARD_CREDENTIALS=${TRAEFIK_DASHBOARD_CREDENTIALS}
+
+        security_opt:
+            - no-new-privileges:true
+        restart: unless-stopped
+        profiles: ["core", "all"]
+        ports:
+            - 80:80
+            - 443:443/tcp
+            # - 443:443/udp # Uncomment if you want HTTP3
+        volumes:
+            - $DOCKERDIR/volumes/bitwarden:/data
+            - /etc/localtime:/etc/localtime:ro
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - $DOCKERDIR/volumes/traefik/conf/traefik.yml:/traefik.yml:ro
+            - $DOCKERDIR/volumes/traefik/conf/letsencrypt:/letsencrypt
+            - $DOCKERDIR/volumes/traefik/conf/custom:/etc/traefik/custom:ro
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.traefik.entrypoints: http
+            traefik.http.routers.traefik.rule: Host(`traefik-dashboard.${PUBLICDOMAIN1}`)
+            traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+            traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme: https
+            traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto: https
+            traefik.http.routers.traefik.middlewares: traefik-https-redirect
+            traefik.http.routers.traefik-secure.entrypoints: https
+            traefik.http.routers.traefik-secure.rule: Host(`traefik-dashboard.${PUBLICDOMAIN1}`)
+            traefik.http.routers.traefik-secure.middlewares: traefik-auth
+            traefik.http.routers.traefik-secure.tls: true
+            traefik.http.routers.traefik-secure.tls.certresolver: cloudflare
+            traefik.http.routers.traefik-secure.tls.domains[0].main: ${PUBLICDOMAIN1}
+            traefik.http.routers.traefik-secure.tls.domains[0].sans: *.${PUBLICDOMAIN1}
+            traefik.http.routers.traefik-secure.service: api@internal
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints

@@ -1,0 +1,25 @@
+services:    
+    # rainloop
+    rainloop:
+        image: newargus/rainloop-webmail
+        container_name: rainloop
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        # ports:
+        #     - 80:80
+        volumes:
+            - $DOCKERDIR/volumes/rainloop/data:/var/www/html/data
+        networks:
+            - reverse_proxy
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.rainloop.rule: Host(`mymail.${PUBLICDOMAIN1}`)
+            traefik.http.services.rainloop.loadbalancer.server.port: 80
+            traefik.http.routers.rainloop.entrypoints: web,websecure
+            traefik.http.routers.rainloop.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints        

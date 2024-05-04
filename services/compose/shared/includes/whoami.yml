@@ -1,0 +1,21 @@
+services:    
+    # whoami
+    whoami:
+        image: traefik/whoami
+        container_name: whoami
+        restart: unless-stopped
+        profiles: ["apps", "test"]
+        # ports:
+        #     - 80:80
+        volumes:
+            - $DOCKERDIR/volumes/rainloop/data:/var/www/html/data
+        networks:
+            - reverse_proxy
+        labels:
+            traefik.enable: true
+            traefik.docker.network: reverse_proxy 
+            traefik.http.routers.whoami.rule: Host(`whoami.${PUBLICDOMAIN1}`)
+            traefik.http.services.whoami.loadbalancer.server.port: 80
+            traefik.http.routers.whoami.entrypoints: web,websecure
+            traefik.http.routers.whoami.middlewares: https_redirect@file
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints        

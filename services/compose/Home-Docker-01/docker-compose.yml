@@ -1,6 +1,6 @@
 ########################### OCR'S ENVIRONMENT
 
-# Here are my 5 Docker Hosts:
+# Here are my 5 Docker compose:
 # - Home Server (Home-Docker) - Proxmox LXC with Ubuntu Server 22.04
 # - DNS / AdBlock Server (dns) - Raspberry Pi 4B with Raspberry Pi OS
 
@@ -16,6 +16,12 @@ networks:
     ipam:
       config:
         - subnet: 172.25.0.0/16
+  backend:
+    name: backend
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.0.0/16     
   dns_net:
     name: dns_net
     driver: bridge
@@ -29,16 +35,19 @@ networks:
 ########################### SERVICES
 include:
 
+  # Specific - $HOME/mydocker/services/compose/$HOSTNAME/includes/<service_name>.yml
+  # shared - $HOME/mydocker/services/compose/shared/includes/<service_name>.yml
+
   # CORE
-  - $HOME/mydocker/services/hosts/$HOSTNAME/cloufflare-ddns.yml
-  - $HOME/mydocker/services/hosts/$HOSTNAME/unbound.yml
-  - $HOME/mydocker/services/hosts/$HOSTNAME/pihole.yml
-  - $HOME/mydocker/services/hosts/$HOSTNAME/portainer-ce.yml
+  - $HOME/mydocker/services/compose/shared/includes/cloufflare-ddns.yml
+  - $HOME/mydocker/services/compose/shared/includes/unbound.yml
+  - $HOME/mydocker/services/compose/shared/includes/pihole.yml
+  - $HOME/mydocker/services/compose/shared/includes/portainer-ce.yml
 
   # SERVICES
-  - $HOME/mydocker/services/hosts/$HOSTNAME/whatchtower.yml
-  - $HOME/mydocker/services/hosts/$HOSTNAME/cloudflare-companion.yml
+  - $HOME/mydocker/services/compose/shared/includes/whatchtower.yml
+  - $HOME/mydocker/services/compose/shared/includes/cloudflare-companion.yml
 
   # APPS
-  - $HOME/mydocker/services/hosts/$HOSTNAME/bitwarden.yml
-  - $HOME/mydocker/services/hosts/$HOSTNAME/wireguard.yml
+  - $HOME/mydocker/services/compose/shared/includes/bitwarden.yml
+  - $HOME/mydocker/services/compose/shared/includes/wireguard.yml

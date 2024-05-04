@@ -1,0 +1,22 @@
+services:
+    # mariadb
+    mariadb:
+        container_name: mariadb
+        image: linuxserver/mariadb:latest
+        volumes:
+            - $DOCKERDIR/volumes/mariadb:/config
+        ports:
+            - "3306:3306"
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${TPGIDZ}
+            - MYSQL_ROOT_PASSWORD=$MARIADB_ROOT_ACCESS_PASSWORD
+            # - MYSQL_USER=$MARIADB_USER_USERNAME #optional
+            # - MYSQL_PASSWORD=$MARIADB_USER_PASSWORD #optional
+            # - MYSQL_DATABASE=$MARIADB_USER_DB_NAME #optional
+
+        restart: unless-stopped
+        networks:
+            - backend 
+        profiles: ["core", "all"]

@@ -1,0 +1,19 @@
+services:    
+    # it-tools
+    it-tools:
+        image: corentinth/it-tools:latest
+        container_name: it-tools
+        restart: unless-stopped
+        profiles: ["apps", "all"]
+        # ports:
+        #    - 80:80
+        networks:
+            - reverse_proxy 
+        labels:
+            traefik.enable: true
+            traefik.http.routers.it-tools.rule: Host(`it-tools.${PUBLICDOMAIN1}`)
+            traefik.http.services.it-tools.loadbalancer.server.port: 80
+            traefik.http.routers.it-tools.middlewares: https_redirect@file
+            traefik.http.routers.it-tools.tls.certresolver: myresolver
+            traefik.http.routers.it-tools.entrypoints: web,websecure
+            traefik.constraint: reverse_proxy # cloudlare-companion constraints
